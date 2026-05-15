@@ -1,0 +1,47 @@
+# GroupDocs.Watermark.Mcp.Tests
+
+Integration tests and deployment how-to guides for GroupDocs.Watermark.Mcp — the MCP server that exposes GroupDocs.Watermark for .NET to AI agents (Claude, Cursor, VS Code / GitHub Copilot, and other MCP-compatible clients).
+
+This repo validates the **published NuGet artifact** end-to-end and doubles as a reference for using it from every supported channel.
+
+## Primary repository
+
+- MCP server source + package: https://github.com/groupdocs-watermark/GroupDocs.Watermark.Mcp
+- NuGet package: https://www.nuget.org/packages/GroupDocs.Watermark.Mcp
+- Docker images: ghcr.io/groupdocs-watermark/watermark-net-mcp and docker.io/groupdocs/watermark-net-mcp
+
+## Deployment channels covered by how-to guides
+
+- how-to/01-install-from-nuget.md — dnx (recommended) + global dotnet tool
+- how-to/02-run-via-docker.md — container image + docker-compose
+- how-to/03-verify-mcp-registry.md — MCP registry discovery and NuGet.org auto-generated mcp.json
+- how-to/04-use-with-claude-desktop.md — Claude Desktop stdio config
+- how-to/05-use-with-vscode-copilot.md — VS Code / GitHub Copilot config with prompt-string inputs
+- how-to/06-run-integration-tests.md — run this repo's test suite locally and in CI
+
+## MCP tools exposed by the server
+
+- add_watermark — add a text watermark (Arial, configurable font size + rotation) to a document and save the watermarked copy. Returns a saved-path message and download URL.
+- add_image_watermark — add an image watermark (logo, signature scan, stamp) to a document. Configurable opacity + rotation. Returns a saved-path message and download URL.
+- search_watermarks — find existing watermarks (text + image) in a document and return their type, text, page, position, size, and rotation as JSON.
+- remove_watermarks — remove existing watermarks from a document and save the cleaned copy. Optional text filter to scope removal to matching watermarks only.
+- get_document_info — return file type, page count, size, and per-page dimensions of a document as JSON. Does not modify the document.
+
+## Environment variables
+
+- GROUPDOCS_MCP_STORAGE_PATH — base folder for input + output (defaults to current working directory)
+- GROUPDOCS_MCP_OUTPUT_PATH — optional, routes output files to a separate folder
+- GROUPDOCS_LICENSE_PATH — path to GroupDocs.Total.lic; omit for evaluation mode (output documents may include an additional evaluation watermark alongside the user-requested one)
+
+## Key facts for AI agents
+
+- Testing the shipped NuGet, not the source. No project reference to the server.
+- Tool names on the wire are snake_case: add_watermark, search_watermarks.
+- AddWatermark runs in evaluation mode without throwing — the engine simply adds an additional evaluation-mode watermark to the output. Tests can therefore run identically with or without GROUPDOCS_LICENSE_PATH.
+- AddWatermark renders Arial glyphs and needs MS core fonts on Linux. Integration runners install ttf-mscorefonts-installer (with the Microsoft EULA pre-accepted) on ubuntu-latest.
+- Sample documents are built from byte arrays at test startup. Drop real fixtures in sample-docs/ to extend coverage.
+- Target framework is net10.0 only. Requires .NET 10 SDK for dnx.
+
+## License
+
+MIT — see LICENSE

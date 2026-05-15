@@ -1,0 +1,104 @@
+name: integration
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  schedule:
+    # Nightly — catches regressions introduced by nuget.org / dnx / runtime changes.
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      package_version:
+        description: "GroupDocs.Watermark.Mcp version on nuget.org to test"
+        required: false
+        default: "25.6.0"
+  # Triggered from the main repo's publish workflow right after a NuGet push.
+  # Payload: { "package_version": "x.y.z" }
+  repository_dispatch:
+    types: [nuget-published]
+
+jobs:
+  test:
+    name: ${{ matrix.os }} · dnx
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    env:
+      MCP_PACKAGE_VERSION: >-
+        ${{ github.event.inputs.package_version
+            || github.event.client_payload.package_version
+            || '25.6.0' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      # GroupDocs.Watermark's PDF and Diagram content paths call System.Drawing
+      # internally (Font / Color / FontFamily / FontStyle on text-watermark
+      # rendering). Linux runners need:
+      # - libgdiplus           : managed System.Drawing implementation
+      # - libfontconfig1       : font discovery
+      # - ttf-mscorefonts-installer : Arial / Times New Roman / etc. — required
+      #   for text-watermark glyph rendering. Without these, AddWatermark fails
+      #   on font resolution and the wrapped error reads "An error occurred
+      #   invoking 'add_watermark'." Pattern lifted from the sibling python-
+      #   conversion Dockerfile. EULA accepted via debconf-set-selections;
+      #   fc-cache refresh post-install.
+      # Note: the .NET Docker base aspnet:10.0 inherits these fonts from
+      # Debian-bookworm-slim; bare ubuntu-24.04 runners do not.
+      - name: Install Linux native deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
+          sudo apt-get install -y --no-install-recommends \
+            libgdiplus libfontconfig1 ttf-mscorefonts-installer
+          # Refresh font cache so newly-installed MS fonts are discoverable.
+          sudo fc-cache -f -v > /dev/null
+
+      - name: Show environment
+        shell: bash
+        run: |
+          dotnet --info
+          echo "Testing GroupDocs.Watermark.Mcp@${MCP_PACKAGE_VERSION}"
+          dnx --help || true
+
+      - name: Write GroupDocs license (optional)
+        # If the repo defines a GROUPDOCS_LICENSE secret (base64 of a .lic file),
+        # write it to disk and point GROUPDOCS_LICENSE_PATH at it. Unlocks the
+        # licensed-mode AddWatermark tests; evaluation-mode tests still run.
+        env:
+          GROUPDOCS_LICENSE: ${{ secrets.GROUPDOCS_LICENSE }}
+        if: env.GROUPDOCS_LICENSE != ''
+        shell: bash
+        run: |
+          echo "$GROUPDOCS_LICENSE" | base64 -d > "$RUNNER_TEMP/GroupDocs.lic"
+          echo "GROUPDOCS_LICENSE_PATH=$RUNNER_TEMP/GroupDocs.lic" >> "$GITHUB_ENV"
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Integration tests
+        run: >-
+          dotnet test --configuration Release --no-build
+          --logger "trx;LogFileName=integration.trx"
+          --logger "console;verbosity=detailed"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trx-${{ matrix.os }}
+          path: "**/TestResults/*.trx"
+          if-no-files-found: ignore

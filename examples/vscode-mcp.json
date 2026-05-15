@@ -1,0 +1,20 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "storage_path",
+      "description": "Base folder for input and output files.",
+      "password": false
+    }
+  ],
+  "servers": {
+    "groupdocs-watermark": {
+      "type": "stdio",
+      "command": "dnx",
+      "args": ["GroupDocs.Watermark.Mcp@25.6.0", "--yes"],
+      "env": {
+        "GROUPDOCS_MCP_STORAGE_PATH": "${input:storage_path}"
+      }
+    }
+  }
+}
