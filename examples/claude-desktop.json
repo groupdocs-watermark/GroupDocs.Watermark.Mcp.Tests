@@ -3,7 +3,7 @@
     "groupdocs-watermark": {
       "type": "stdio",
       "command": "dnx",
-      "args": ["GroupDocs.Watermark.Mcp@25.6.0", "--yes"],
+      "args": ["GroupDocs.Watermark.Mcp@26.5.0", "--yes"],
       "env": {
         "GROUPDOCS_MCP_STORAGE_PATH": "/absolute/path/to/documents"
       }

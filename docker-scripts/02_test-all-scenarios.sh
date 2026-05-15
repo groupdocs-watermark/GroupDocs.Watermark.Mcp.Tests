@@ -23,7 +23,7 @@
 # Options:
 #   --version VERSION       Test specific package version (default: latest)
 #                           Use "latest" or omit the flag to track nuget.org's
-#                           most recent stable release. Pin (e.g. "25.6.0") for
+#                           most recent stable release. Pin (e.g. "26.5.0") for
 #                           reproducible / shared / CI runs.
 #   --filter PATTERN        Run only tests matching pattern (e.g., SearchWatermarks)
 #   --no-build              Skip local .NET build, use pre-built
@@ -32,7 +32,7 @@
 #
 # Examples:
 #   ./02_test-all-scenarios.sh                                  # latest stable
-#   ./02_test-all-scenarios.sh --version 25.6.0 --filter SearchWatermarks
+#   ./02_test-all-scenarios.sh --version 26.5.0 --filter SearchWatermarks
 #   ./02_test-all-scenarios.sh --license /path/to/GroupDocs.Total.lic
 #
 ################################################################################

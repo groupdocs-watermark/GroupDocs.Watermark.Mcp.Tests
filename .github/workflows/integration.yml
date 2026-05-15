@@ -13,7 +13,7 @@ on:
       package_version:
         description: "GroupDocs.Watermark.Mcp version on nuget.org to test"
         required: false
-        default: "25.6.0"
+        default: "26.5.0"
   # Triggered from the main repo's publish workflow right after a NuGet push.
   # Payload: { "package_version": "x.y.z" }
   repository_dispatch:
@@ -32,7 +32,7 @@ jobs:
       MCP_PACKAGE_VERSION: >-
         ${{ github.event.inputs.package_version
             || github.event.client_payload.package_version
-            || '25.6.0' }}
+            || '26.5.0' }}
 
     steps:
       - uses: actions/checkout@v4

@@ -80,7 +80,7 @@ package with the `McpServer` type.
 Claude Desktop doesn't (yet) have built-in registry search, but you can confirm
 discoverability indirectly:
 
-- `dnx` successfully resolves `GroupDocs.Watermark.Mcp@25.6.0` from nuget.org.
+- `dnx` successfully resolves `GroupDocs.Watermark.Mcp@26.5.0` from nuget.org.
 - The snippet on the NuGet package page pastes directly into
   `claude_desktop_config.json` without edits (other than `storage_path`).
 

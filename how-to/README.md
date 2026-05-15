@@ -27,7 +27,7 @@ all point at the same published artifact (`26.4.4` at time of writing).
 
 ## Common context
 
-- All guides target `GroupDocs.Watermark.Mcp@25.6.0`. Substitute a newer version
+- All guides target `GroupDocs.Watermark.Mcp@26.5.0`. Substitute a newer version
   freely — the interfaces haven't changed.
 - Tools exposed on the wire are `add_watermark` and `search_watermarks` (snake_case).
 - Both tools work in evaluation mode without a GroupDocs license. The engine

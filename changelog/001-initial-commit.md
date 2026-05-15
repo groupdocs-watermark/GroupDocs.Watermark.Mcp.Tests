@@ -1,15 +1,15 @@
 ---
 id: 001
 date: 2026-05-14
-version: 25.6.0
+version: 26.5.0
 type: feature
 ---
 
-# Initial integration-test repo for GroupDocs.Watermark.Mcp 25.6.0
+# Initial integration-test repo for GroupDocs.Watermark.Mcp 26.5.0
 
 ## What changed
 - Public integration-test repo `groupdocs-watermark/GroupDocs.Watermark.Mcp.Tests` published.
-- Exercises the **shipped** `GroupDocs.Watermark.Mcp@25.6.0` NuGet via `dnx`, NOT a project reference to the server source.
+- Exercises the **shipped** `GroupDocs.Watermark.Mcp@26.5.0` NuGet via `dnx`, NOT a project reference to the server source.
 - Test suites (covering all 5 advertised tools):
   - `ToolDiscoveryTests` — server handshake, tool listing (asserts exactly 5 tools: `add_watermark`, `add_image_watermark`, `search_watermarks`, `remove_watermarks`, `get_document_info`), schema sanity.
   - `AddWatermarkTests` — text-watermark insertion against the synthetic 1-page PDF and 6 real samples (PDF / DOCX / XLSX / PPTX / PNG / VSDX), plus custom font/rotation arguments and protected-document password.
@@ -23,7 +23,7 @@ type: feature
 - Linux runners install `libgdiplus libfontconfig1 ttf-mscorefonts-installer` (with the Microsoft EULA pre-accepted via `debconf-set-selections`, plus `fc-cache -f -v` to refresh the font registry). Watermark's `AddWatermark` renders Arial glyphs and needs MS core fonts; bare ubuntu-24.04 does not ship them.
 - How-to guides (`how-to/01..06`) cover install-from-NuGet, run-via-Docker, MCP-registry discovery, Claude Desktop config, VS Code / Copilot config, and running this suite locally / in CI.
 - Docker-scripts (`docker-scripts/00..04`) provide a copy-pasteable local + containerised test harness.
-- Example configs (`examples/claude-desktop.json`, `vscode-mcp.json`, `docker-compose.yml`) pin to 25.6.0.
+- Example configs (`examples/claude-desktop.json`, `vscode-mcp.json`, `docker-compose.yml`) pin to 26.5.0.
 
 ## Pitfall remediations baked in
 - **`ToolCatalog` uses substring keywords that survive the snake_case wire-name transform** (`Resolve("add")` matches `add_watermark`, `Resolve("search")` matches `search_watermarks`). Both keywords are single-word so the underscore-trap (Pitfall #15) doesn't apply, but the convention is preserved.
