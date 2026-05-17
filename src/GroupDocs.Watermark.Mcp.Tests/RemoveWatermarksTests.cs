@@ -8,15 +8,12 @@ namespace GroupDocs.Watermark.Mcp.IntegrationTests;
 /// RemoveWatermarks finds existing watermarks and saves a cleaned copy as
 /// `<name>_unwatermarked.<ext>`. Optional `textFilter` scopes removal to
 /// watermarks whose text contains the filter substring.
-[Collection(McpServerCollection.Name)]
-public class RemoveWatermarksTests
+public class RemoveWatermarksTests : McpServerTestBase
 {
-    private readonly McpServerFixture _fixture;
     private readonly ITestOutputHelper _output;
 
-    public RemoveWatermarksTests(McpServerFixture fixture, ITestOutputHelper output)
+    public RemoveWatermarksTests(ITestOutputHelper output)
     {
-        _fixture = fixture;
         _output = output;
     }
 

@@ -5,7 +5,11 @@ namespace GroupDocs.Watermark.Mcp.IntegrationTests.Fixtures;
 
 /// Boots the published GroupDocs.Watermark.Mcp NuGet via `dnx` as a child process,
 /// wires an MCP stdio client, and seeds a temporary storage folder with sample
-/// documents. Shared across all tests in the same xUnit collection.
+/// documents.
+///
+/// Created once PER TEST METHOD (not shared) — see McpServerTestBase. Each test
+/// gets a fresh server process so GroupDocs.Watermark's 10-document-per-process
+/// evaluation-mode cap is never reached suite-wide.
 public sealed class McpServerFixture : IAsyncLifetime
 {
     public string StoragePath { get; } = Path.Combine(
@@ -78,10 +82,4 @@ public sealed class McpServerFixture : IAsyncLifetime
             // Best-effort cleanup on Windows where handles may linger briefly.
         }
     }
-}
-
-[CollectionDefinition(Name)]
-public sealed class McpServerCollection : ICollectionFixture<McpServerFixture>
-{
-    public const string Name = "mcp-server";
 }

@@ -9,15 +9,12 @@ namespace GroupDocs.Watermark.Mcp.IntegrationTests;
 /// in evaluation mode (it just adds an additional evaluation watermark
 /// alongside the user-requested one), so tests run identically with or without
 /// GROUPDOCS_LICENSE_PATH — license only affects the eval-mode banner prefix.
-[Collection(McpServerCollection.Name)]
-public class AddWatermarkTests
+public class AddWatermarkTests : McpServerTestBase
 {
-    private readonly McpServerFixture _fixture;
     private readonly ITestOutputHelper _output;
 
-    public AddWatermarkTests(McpServerFixture fixture, ITestOutputHelper output)
+    public AddWatermarkTests(ITestOutputHelper output)
     {
-        _fixture = fixture;
         _output = output;
     }
 

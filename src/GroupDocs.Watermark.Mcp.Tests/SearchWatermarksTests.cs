@@ -11,15 +11,12 @@ namespace GroupDocs.Watermark.Mcp.IntegrationTests;
 /// `count: 0`. Real samples DO have content that may or may not surface — the
 /// JSON-structure assertions accept both empty and non-empty results, while the
 /// add-then-search roundtrip verifies the end-to-end write/read path.
-[Collection(McpServerCollection.Name)]
-public class SearchWatermarksTests
+public class SearchWatermarksTests : McpServerTestBase
 {
-    private readonly McpServerFixture _fixture;
     private readonly ITestOutputHelper _output;
 
-    public SearchWatermarksTests(McpServerFixture fixture, ITestOutputHelper output)
+    public SearchWatermarksTests(ITestOutputHelper output)
     {
-        _fixture = fixture;
         _output = output;
     }
 

@@ -9,15 +9,12 @@ namespace GroupDocs.Watermark.Mcp.IntegrationTests;
 /// without modifying the document. Should work in evaluation mode without
 /// license. Tests assert the JSON shape but not specific values, since real
 /// sample contents may drift across upstream refreshes.
-[Collection(McpServerCollection.Name)]
-public class GetDocumentInfoTests
+public class GetDocumentInfoTests : McpServerTestBase
 {
-    private readonly McpServerFixture _fixture;
     private readonly ITestOutputHelper _output;
 
-    public GetDocumentInfoTests(McpServerFixture fixture, ITestOutputHelper output)
+    public GetDocumentInfoTests(ITestOutputHelper output)
     {
-        _fixture = fixture;
         _output = output;
     }
 

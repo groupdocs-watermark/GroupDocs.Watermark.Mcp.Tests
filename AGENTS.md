@@ -23,6 +23,7 @@ src/GroupDocs.Watermark.Mcp.Tests/
     ToolResponse.cs              ← CallToolResult text/JSON extraction
     CommandResolver.cs           ← cross-platform dnx.cmd resolution on Windows
     PackageVersion.cs            ← pulls version from env / assembly metadata / default
+  McpServerTestBase.cs           ← per-test fixture base — fresh server process per test method
   ToolDiscoveryTests.cs          ← handshake, tools/list, schema validation
   AddWatermarkTests.cs           ← text watermark across formats + custom font/rotation + password
   AddImageWatermarkTests.cs      ← image watermark across formats
@@ -83,13 +84,15 @@ dotnet test -c Release --filter "FullyQualifiedName~ToolDiscovery"
 
 2. **Synthetic fixtures.** `SampleDocuments.cs` builds a minimal valid PDF (1 page, Info dict → Author/Title) and a valid baseline JPEG from byte arrays. No binary files in the repo. To add real-world fixtures, drop them in `sample-docs/` — the csproj auto-copies everything there to the test output.
 
-3. **Evaluation-mode is non-blocking.** Unlike `GroupDocs.Metadata.Save()` which throws in evaluation mode, `GroupDocs.Watermark` simply adds an additional evaluation watermark alongside the user-requested one and saves the output. Tests run identically with or without `GROUPDOCS_LICENSE_PATH`; the license only affects the eval-mode banner prefix in `AddWatermark`'s response text. CI auto-decodes a `GROUPDOCS_LICENSE` repo secret into `$RUNNER_TEMP` to verify the no-banner case.
+3. **Per-test server process — required by the eval-mode document cap.** Every test class derives from `McpServerTestBase`, which boots a **fresh MCP server process for each test method** (xUnit instantiates the test class per method; the base's `IAsyncLifetime` hooks start/stop a `McpServerFixture` each time). This is NOT the usual shared-`ICollectionFixture` pattern, and it must not be "optimized" back to one: GroupDocs.Watermark's evaluation mode caps document loads at **10 per process** (`"Only 10 documents can be loaded per application run in evaluation mode"`). The full suite opens ~30 documents — a single shared server process exhausts the budget partway through and the rest of the suite fails. A fresh process per test resets the counter; no individual test opens more than ~3 documents. See Pitfall #20 in the clone-to-new-product.md prompt.
 
-4. **JSON responses are returned raw.** `SearchWatermarks` calls `JsonSerializer.Serialize(...)` directly without piping through `OutputHelper.TruncateText` — the truncation marker is plain text and would break strict-JSON consumers. Test fixtures parse responses with `JsonDocument.Parse` and assert against the `{ count, watermarks: [...] }` schema.
+4. **Evaluation-mode is non-blocking (for watermark stamping).** Unlike `GroupDocs.Metadata.Save()` which throws in evaluation mode, `GroupDocs.Watermark` adds an additional evaluation watermark alongside the user-requested one and saves the output. With the per-test fixture (decision 3) the suite runs fully **unlicensed** — no `GROUPDOCS_LICENSE` secret is needed for green CI. The license only affects the eval-mode banner prefix in `AddWatermark`'s response text; the optional `GROUPDOCS_LICENSE`-decode step in `integration.yml` exists solely to verify the no-banner case when a license *is* available.
 
-5. **Engine errors surface diagnostically.** Both `AddWatermarkTool` and `SearchWatermarksTool` wrap their engine calls in `try/catch` and return `"Watermarking failed for '<file>': <ExceptionType>: <message> | inner(0): ..."` (or `"Search failed for '<file>': ..."`) instead of letting them bubble up to MCP's canned `"An error occurred invoking '<tool>'"` wrapper. Tests assert `DoesNotContain("Watermarking failed for", body)` on the success path.
+5. **JSON responses are returned raw.** `SearchWatermarks` calls `JsonSerializer.Serialize(...)` directly without piping through `OutputHelper.TruncateText` — the truncation marker is plain text and would break strict-JSON consumers. Test fixtures parse responses with `JsonDocument.Parse` and assert against the `{ count, watermarks: [...] }` schema.
 
-6. **No project references to the server.** The csproj only references `ModelContextProtocol` 1.1.0. If the server source breaks in the sibling repo, these tests still pass — they validate the shipped NuGet artifact.
+6. **Engine errors surface diagnostically.** Both `AddWatermarkTool` and `SearchWatermarksTool` wrap their engine calls in `try/catch` and return `"Watermarking failed for '<file>': <ExceptionType>: <message> | inner(0): ..."` (or `"Search failed for '<file>': ..."`) instead of letting them bubble up to MCP's canned `"An error occurred invoking '<tool>'"` wrapper. Tests assert `DoesNotContain("Watermarking failed for", body)` on the success path.
+
+7. **No project references to the server.** The csproj only references `ModelContextProtocol` 1.1.0. If the server source breaks in the sibling repo, these tests still pass — they validate the shipped NuGet artifact.
 
 ## House rules
 

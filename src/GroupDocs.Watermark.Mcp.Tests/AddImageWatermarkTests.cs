@@ -8,15 +8,12 @@ namespace GroupDocs.Watermark.Mcp.IntegrationTests;
 /// document. The image source and target are both resolved from the server's
 /// storage path. Uses `image.png` from the real-samples set as the watermark
 /// image for all tests — same logo overlaid on different target formats.
-[Collection(McpServerCollection.Name)]
-public class AddImageWatermarkTests
+public class AddImageWatermarkTests : McpServerTestBase
 {
-    private readonly McpServerFixture _fixture;
     private readonly ITestOutputHelper _output;
 
-    public AddImageWatermarkTests(McpServerFixture fixture, ITestOutputHelper output)
+    public AddImageWatermarkTests(ITestOutputHelper output)
     {
-        _fixture = fixture;
         _output = output;
     }
 

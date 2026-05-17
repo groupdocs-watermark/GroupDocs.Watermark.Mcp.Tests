@@ -4,15 +4,12 @@ using Xunit.Abstractions;
 
 namespace GroupDocs.Watermark.Mcp.IntegrationTests;
 
-[Collection(McpServerCollection.Name)]
-public class ToolDiscoveryTests
+public class ToolDiscoveryTests : McpServerTestBase
 {
-    private readonly McpServerFixture _fixture;
     private readonly ITestOutputHelper _output;
 
-    public ToolDiscoveryTests(McpServerFixture fixture, ITestOutputHelper output)
+    public ToolDiscoveryTests(ITestOutputHelper output)
     {
-        _fixture = fixture;
         _output = output;
     }
 
