@@ -131,6 +131,23 @@ GROUPDOCS_LICENSE_PATH=/secrets/GroupDocs.Total.lic \
 dnx GroupDocs.Watermark.Mcp@26.5.0 --yes
 ```
 
+## Native prerequisites
+
+The underlying GroupDocs engine uses `System.Drawing` (GDI+) for some
+operations. When you run the server **natively** (via `dnx` or the global
+dotnet tool) on Linux or macOS, install the native `libgdiplus` library first:
+
+| Platform | Setup |
+|---|---|
+| Windows | Nothing — GDI+ is built into the OS. |
+| Linux | `sudo apt-get install -y libgdiplus libfontconfig1 ttf-mscorefonts-installer` |
+| macOS | `brew install mono-libgdiplus` |
+| Docker | Nothing — the image already bundles `libgdiplus`. |
+
+Skipping this on Linux/macOS surfaces as `DllNotFoundException: libgdiplus` in
+the tool response. The simplest zero-setup option on Linux/macOS is the
+**Docker image**.
+
 ## License
 
 Both `add_watermark` and `search_watermarks` work in evaluation mode without a
@@ -168,7 +185,7 @@ authoritative. If you want to script-check it, see
 | First run hangs for ~30 s | Package is downloading from nuget.org into cache | Normal. Subsequent runs are fast. |
 | `[Evaluation mode] Output may include evaluation watermarks alongside the user-requested watermark.` | No `GROUPDOCS_LICENSE_PATH` | Expected. Output file is still produced; license suppresses the extra eval watermark. |
 | `Watermarking failed for '<file>': System.IO.FileNotFoundException: …` | Source file not in storage | Confirm the filename exists under `GROUPDOCS_MCP_STORAGE_PATH`. |
-| `Watermarking failed for '<file>': System.DllNotFoundException: …` or font-resolution errors | Linux missing `libgdiplus` / `libfontconfig1` / MS core fonts | Install `libgdiplus libfontconfig1 ttf-mscorefonts-installer` (the EULA needs `debconf-set-selections`). Pattern documented in this repo's `.github/workflows/integration.yml`. |
+| `DllNotFoundException: libgdiplus` (Linux / macOS) | Native graphics deps not installed | Install them — see [Native prerequisites](#native-prerequisites). Linux: `apt-get install libgdiplus …`; macOS: `brew install mono-libgdiplus`. Or run via Docker. |
 | Client can't see any tools | MCP client didn't finish `initialize` handshake before issuing `tools/list` | Check your client config — most handle this automatically. If hand-rolling, always send `notifications/initialized` after `initialize`. |
 
 ## Next steps

@@ -64,6 +64,27 @@ jobs:
           # Refresh font cache so newly-installed MS fonts are discoverable.
           sudo fc-cache -f -v > /dev/null
 
+      # macOS runners ship neither GDI+ nor libgdiplus. GroupDocs engines that
+      # touch image / spreadsheet content P/Invoke System.Drawing, which loads
+      # libgdiplus. The dnx-spawned server's dyld does NOT search the Homebrew
+      # prefix or /usr/local/lib (a failing run showed its dlopen only probes the
+      # package dir, the .NET shared-framework dir, and /usr/lib). So install via
+      # Homebrew and copy the dylib into the .NET runtime's shared-framework dir,
+      # a path .NET's System.Drawing explicitly probes; libgdiplus's own deps
+      # (cairo, glib, …) stay resolvable via the absolute Homebrew paths baked
+      # into its load commands. (Windows has GDI+ built in; Linux: apt above.)
+      - name: Install macOS native deps
+        if: runner.os == 'macOS'
+        run: |
+          set -euxo pipefail
+          brew install mono-libgdiplus
+          GDIP="$(brew --prefix mono-libgdiplus)/lib/libgdiplus.dylib"
+          otool -L "$GDIP" || true
+          for d in "$HOME/.dotnet/shared/Microsoft.NETCore.App/"*/ ; do
+            cp -f "$GDIP" "$d"
+            echo "installed libgdiplus -> $d"
+          done
+
       - name: Show environment
         shell: bash
         run: |

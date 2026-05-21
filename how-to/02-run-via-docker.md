@@ -7,6 +7,11 @@ The MCP server is published as a container image to two registries:
 
 Each release is tagged with its version (`:26.4.4`) and `:latest`.
 
+> **No native setup needed.** Unlike a native `dnx` / global-tool install — which
+> needs `libgdiplus` installed by hand on Linux/macOS — this Docker image already
+> bundles `libgdiplus` and the graphics native deps. Nothing to `apt-get` or
+> `brew install`.
+
 ## Prerequisites
 
 ```bash
