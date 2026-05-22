@@ -8,6 +8,14 @@ namespace GroupDocs.Watermark.Mcp.IntegrationTests;
 /// RemoveWatermarks finds existing watermarks and saves a cleaned copy as
 /// `<name>_unwatermarked.<ext>`. Optional `textFilter` scopes removal to
 /// watermarks whose text contains the filter substring.
+///
+/// Eval-mode note: unlike AddWatermark (which works unlicensed, just adding an
+/// extra evaluation watermark), removing watermarks from Office formats edits
+/// document parts, which GroupDocs.Watermark BLOCKS in evaluation mode
+/// ("Adding/removing of document parts is not allowed in evaluation mode").
+/// The tool surfaces that as a caught, descriptive "Watermark removal failed
+/// for ..." message (Pitfall #18) rather than crashing. Tests that actually
+/// remove from a real document therefore branch on whether a license is present.
 public class RemoveWatermarksTests : McpServerTestBase
 {
     private readonly ITestOutputHelper _output;
@@ -16,6 +24,9 @@ public class RemoveWatermarksTests : McpServerTestBase
     {
         _output = output;
     }
+
+    private static bool IsLicensed =>
+        !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GROUPDOCS_LICENSE_PATH"));
 
     [Fact]
     public async Task RemoveWatermarks_SyntheticPdfWithNoWatermarks_ReportsNoMatches()
@@ -77,6 +88,17 @@ public class RemoveWatermarksTests : McpServerTestBase
         var body = ToolResponse.Text(removeResponse);
         _output.WriteLine(body);
 
+        if (!IsLicensed)
+        {
+            // Eval mode blocks document-part removal from Office formats. Assert the
+            // tool degrades gracefully (caught, descriptive error per Pitfall #18) and
+            // the server stays up; the cleaned-file check only applies when licensed.
+            Assert.Contains("Watermark removal failed for", body);
+            Assert.Contains("evaluation mode", body, StringComparison.OrdinalIgnoreCase);
+            Assert.NotEmpty(await _fixture.Client.ListToolsAsync());
+            return;
+        }
+
         Assert.DoesNotContain("Watermark removal failed for", body);
 
         // Cleaned output exists.
@@ -125,6 +147,17 @@ public class RemoveWatermarksTests : McpServerTestBase
 
         var body = ToolResponse.Text(removeResponse);
         _output.WriteLine(body);
+
+        if (!IsLicensed)
+        {
+            // Eval mode blocks document-part removal from Office formats — the tool
+            // returns a caught, descriptive error (Pitfall #18). Assert graceful
+            // degradation; the filtered-removal outcome only applies when licensed.
+            Assert.Contains("Watermark removal failed for", body);
+            Assert.Contains("evaluation mode", body, StringComparison.OrdinalIgnoreCase);
+            Assert.NotEmpty(await _fixture.Client.ListToolsAsync());
+            return;
+        }
 
         Assert.DoesNotContain("Watermark removal failed for", body);
         // Body should either report "Removed N watermark(s) matching 'STRIP-ME'..."
