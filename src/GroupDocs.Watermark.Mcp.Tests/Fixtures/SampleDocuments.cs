@@ -36,9 +36,10 @@ internal static class SampleDocuments
         ImagePng, ProtectedDocumentDocx, DiagramVsdx,
     };
 
-    /// Password used by ProtectedDocumentDocx. Sourced from the .NET Examples
-    /// repo's password — kept in lockstep with the upstream fixture.
-    public const string ProtectedDocumentPassword = "password";
+    /// Password used by ProtectedDocumentDocx. Matches the upstream
+    /// GroupDocs.Watermark-for-.NET fixture (LoadPasswordProtectedDocument.cs:
+    /// `loadOptions.Password = "P@$$w0rd"`). Note the doubled '$'.
+    public const string ProtectedDocumentPassword = "P@$$w0rd";
 
     public static void WriteAll(string directory)
     {
