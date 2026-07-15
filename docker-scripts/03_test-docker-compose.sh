@@ -22,7 +22,7 @@
 # Options:
 #   --version VERSION       Test specific package version (default: latest)
 #                           Use "latest" or omit the flag to track nuget.org's
-#                           most recent stable release. Pin (e.g. "26.5.0") for
+#                           most recent stable release. Pin (e.g. "26.7.0") for
 #                           reproducible / shared / CI runs.
 #   --filter PATTERN        Run only tests matching pattern
 #   --license PATH          Path to GroupDocs license file
@@ -31,7 +31,7 @@
 #
 # Examples:
 #   ./03_test-docker-compose.sh                                  # latest stable
-#   ./03_test-docker-compose.sh --version 26.5.0
+#   ./03_test-docker-compose.sh --version 26.7.0
 #   ./03_test-docker-compose.sh --filter SearchWatermarks --keep
 #
 ################################################################################
