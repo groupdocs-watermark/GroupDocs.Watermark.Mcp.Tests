@@ -18,6 +18,7 @@ This repo validates the **published NuGet artifact** end-to-end and doubles as a
 - how-to/04-use-with-claude-desktop.md — Claude Desktop stdio config
 - how-to/05-use-with-vscode-copilot.md — VS Code / GitHub Copilot config with prompt-string inputs
 - how-to/06-run-integration-tests.md — run this repo's test suite locally and in CI
+- how-to/07-use-with-cursor.md — Cursor Agent stdio config (dnx / Windows dotnet.exe / Docker)
 
 ## MCP tools exposed by the server
 
