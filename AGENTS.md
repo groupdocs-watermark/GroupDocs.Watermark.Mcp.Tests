@@ -61,13 +61,13 @@ global.json                        ← pinned to .NET 10.0.100
 dotnet restore
 dotnet build -c Release
 
-# Run all integration tests against the default package version (26.5.0)
+# Run all integration tests against the default package version (26.7.0)
 dotnet test -c Release
 
 # Run against a specific published version
-dotnet test -c Release -p:McpPackageVersion=26.5.0
+dotnet test -c Release -p:McpPackageVersion=26.7.0
 # or
-MCP_PACKAGE_VERSION=26.5.0 dotnet test -c Release
+MCP_PACKAGE_VERSION=26.7.0 dotnet test -c Release
 
 # Pass through GROUPDOCS_LICENSE_PATH to suppress the evaluation watermark added
 # alongside the user-requested one. Tests pass with or without; license only
