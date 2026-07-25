@@ -107,6 +107,26 @@ jobs:
           echo "$GROUPDOCS_LICENSE" | base64 -d > "$RUNNER_TEMP/GroupDocs.lic"
           echo "GROUPDOCS_LICENSE_PATH=$RUNNER_TEMP/GroupDocs.lic" >> "$GITHUB_ENV"
 
+      # Pre-warm the dnx package cache AND surface the server's launch stderr.
+      # With a COLD dnx cache the fixture's in-pipe launch of a large package can fail
+      # ConnectAsync in ~2s ('server shut down unexpectedly') before the download
+      # completes - proven on Signature@26.7.2 (3 consecutive red runs cold, 42/42
+      # green after warm-up). This step downloads/launches the server once
+      # (stdin=/dev/null -> reads EOF -> clean exit 0; 124 = killed by timeout = also
+      # healthy) and prints stderr, which the fixture error hides.
+      - name: Pre-warm dnx package cache (+ launch diagnostics)
+        shell: bash
+        run: |
+          set +e
+          DNX=dnx
+          [ "$RUNNER_OS" = "Windows" ] && DNX=dnx.cmd
+          timeout 180 "$DNX" GroupDocs.Watermark.Mcp@${MCP_PACKAGE_VERSION} --yes < /dev/null > dnx_probe_out.log 2> dnx_probe_err.log
+          code=$?
+          echo "probe exit=$code (0 or 124 = healthy; 127 = dnx not found; else see stderr)"
+          echo "--- stderr ---"; cat dnx_probe_err.log
+          echo "--- stdout (head) ---"; head -5 dnx_probe_out.log
+          exit 0
+
       - name: Restore
         run: dotnet restore
 
