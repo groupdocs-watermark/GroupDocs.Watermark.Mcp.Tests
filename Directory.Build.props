@@ -10,7 +10,7 @@
 
   <PropertyGroup Label="Package under test">
     <!-- Version of GroupDocs.Watermark.Mcp on nuget.org to exercise.
-         Override on the command line: dotnet test -p:McpPackageVersion=26.7.1 -->
-    <McpPackageVersion Condition="'$(McpPackageVersion)' == ''">26.7.1</McpPackageVersion>
+         Override on the command line: dotnet test -p:McpPackageVersion=26.7.2 -->
+    <McpPackageVersion Condition="'$(McpPackageVersion)' == ''">26.7.2</McpPackageVersion>
   </PropertyGroup>
 </Project>
