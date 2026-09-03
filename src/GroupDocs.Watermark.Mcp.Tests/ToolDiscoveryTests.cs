@@ -33,7 +33,9 @@ public class ToolDiscoveryTests : McpServerTestBase
         foreach (var tool in catalog.All)
             _output.WriteLine($"tool: {tool.Name} — {tool.Description}");
 
-        Assert.Equal(5, catalog.All.Count);
+        // 5 product tools plus get_license_status, which GroupDocs.Mcp.Core
+        // registers on every server from 26.9.0.
+        Assert.Equal(6, catalog.All.Count);
         Assert.NotNull(catalog.AddWatermark);
         Assert.NotNull(catalog.AddImageWatermark);
         Assert.NotNull(catalog.SearchWatermarks);
