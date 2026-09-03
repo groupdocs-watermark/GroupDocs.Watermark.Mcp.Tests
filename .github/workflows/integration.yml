@@ -13,7 +13,7 @@ on:
       package_version:
         description: "GroupDocs.Watermark.Mcp version on nuget.org to test"
         required: false
-        default: "26.7.2"
+        default: "26.9.0"
   # Triggered from the main repo's publish workflow right after a NuGet push.
   # Payload: { "package_version": "x.y.z" }
   repository_dispatch:
@@ -35,7 +35,7 @@ jobs:
       MCP_PACKAGE_VERSION: >-
         ${{ github.event.inputs.package_version
             || github.event.client_payload.package_version
-            || '26.7.2' }}
+            || '26.9.0' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -110,7 +110,7 @@ jobs:
       # Pre-warm the dnx package cache AND surface the server's launch stderr.
       # With a COLD dnx cache the fixture's in-pipe launch of a large package can fail
       # ConnectAsync in ~2s ('server shut down unexpectedly') before the download
-      # completes - proven on Signature@26.7.2 (3 consecutive red runs cold, 42/42
+      # completes - proven on Signature@26.9.0 (3 consecutive red runs cold, 42/42
       # green after warm-up). This step downloads/launches the server once
       # (stdin=/dev/null -> reads EOF -> clean exit 0; 124 = killed by timeout = also
       # healthy) and prints stderr, which the fixture error hides.
@@ -133,9 +133,12 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
+      # Category=Metered is excluded on purpose: those tests bill a real metered
+      # account per operation, so they run only from the dedicated `metered` workflow.
       - name: Integration tests
         run: >-
           dotnet test --configuration Release --no-build
+          --filter "Category!=Metered"
           --logger "trx;LogFileName=integration.trx"
           --logger "console;verbosity=detailed"
           --blame-hang --blame-hang-timeout 5m --blame-hang-dump-type full
